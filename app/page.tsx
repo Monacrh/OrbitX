@@ -6,6 +6,7 @@ import { Stars, Html, CameraControls } from '@react-three/drei'
 import * as THREE from 'three'
 
 import { SunMesh } from './components/sun'
+import { MercuryMesh } from './components/mercury'
 import { EarthMesh } from './components/earth'
 import { MarsMesh } from './components/mars'
 import { SolarControls } from './components/solarpanel'
@@ -76,7 +77,7 @@ function PlanetOrbit({ radius, speed, children, name, isAligned, onPlanetClick }
 export default function SolarSystem() {
   const [isAligned, setIsAligned] = useState(true)
   const [currentDate, setCurrentDate] = useState(new Date())
-  const [focusTarget, setFocusTarget] = useState<'SUN' | 'EARTH' | 'MARS' | 'RESET' | null>(null)
+  const [focusTarget, setFocusTarget] = useState<'SUN' | 'MERCURY' | 'EARTH' | 'MARS' | 'RESET' | null>(null)
 
   const cameraRef = useRef<CameraControls>(null)
   const frameCounter = useRef(0)
@@ -92,7 +93,7 @@ export default function SolarSystem() {
     }
   }, [])
 
-  const handleFocus = (target: 'SUN' | 'EARTH' | 'MARS' | 'RESET') => {
+  const handleFocus = (target: 'SUN' | 'MERCURY' | 'EARTH' | 'MARS' | 'RESET') => {
     if (!cameraRef.current) return
     
     setFocusTarget(target)
@@ -102,6 +103,9 @@ export default function SolarSystem() {
     switch (target) {
       case 'SUN':
         cameraRef.current.setLookAt(6, 2, 6, 0, 0, 0, true) 
+        break
+      case 'MERCURY':
+        cameraRef.current.setLookAt(8, 1, 2, 6, 0, 0, true)
         break
       case 'EARTH':
         cameraRef.current.setLookAt(14, 2, 4, 10, 0, 0, true)
@@ -163,6 +167,19 @@ export default function SolarSystem() {
         >
            <SunMesh /> 
         </group>
+
+        {/* 2. MERCURY */}
+        <PlanetOrbit 
+          radius={6} 
+          speed={1.5} // Lebih cepat dari Bumi
+          name="Merkurius" 
+          isAligned={isAligned}
+          onPlanetClick={() => handleFocus('MERCURY')}
+        >
+          <group scale={[0.38, 0.38, 0.38]}> {/* Ukuran asli Merkurius */}
+            <MercuryMesh />
+          </group>
+        </PlanetOrbit>
 
         {/* 2. BUMI */}
         <PlanetOrbit 
