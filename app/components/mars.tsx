@@ -53,7 +53,7 @@ export const MarsMesh = memo(function MarsMesh() {
 
   // 2. Uniforms
   const uniforms = useMemo(() => ({
-    size: { value: 3.5 },
+    size: { value: 3.0 },
     colorTexture: { value: colorMap },
     elevTexture: { value: bumpMap },
     rainbowTexture: { value: rainbowMap }, // Masukkan ke uniform

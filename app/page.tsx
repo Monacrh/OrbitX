@@ -6,10 +6,15 @@ import { Stars, Html, CameraControls } from '@react-three/drei'
 import * as THREE from 'three'
 
 import { SunMesh } from './components/sun'
-import { MercuryMesh } from './components/mercury'
 import { EarthMesh } from './components/earth'
 import { MarsMesh } from './components/mars'
+import { MercuryMesh } from './components/mercury'
+import { VenusMesh } from './components/venus'
 import { SolarControls } from './components/solarpanel'
+
+// --- KONSTANTA SKALA (Ubah ini untuk mengatur besar/kecil seluruh planet) ---
+// Kita kecilkan jadi 0.6 (60%) agar tidak berdempetan di orbit
+const BASE_SCALE = 0.6 
 
 // --- HELPER: TIME MANAGER ---
 function TimeManager({ isRunning, onUpdateDate }: { isRunning: boolean, onUpdateDate: () => void }) {
@@ -44,6 +49,7 @@ function PlanetOrbit({ radius, speed, children, name, isAligned, onPlanetClick }
 
   return (
     <group>
+      {/* Garis Orbit */}
       <mesh rotation-x={Math.PI / 2} visible={!isAligned}>
         <ringGeometry args={[radius - 0.05, radius + 0.05, 128]} />
         <meshBasicMaterial color="#ffffff" opacity={0.05} transparent side={THREE.DoubleSide} />
@@ -77,7 +83,7 @@ function PlanetOrbit({ radius, speed, children, name, isAligned, onPlanetClick }
 export default function SolarSystem() {
   const [isAligned, setIsAligned] = useState(true)
   const [currentDate, setCurrentDate] = useState(new Date())
-  const [focusTarget, setFocusTarget] = useState<'SUN' | 'MERCURY' | 'EARTH' | 'MARS' | 'RESET' | null>(null)
+  const [focusTarget, setFocusTarget] = useState<'SUN' | 'MERCURY' | 'VENUS' | 'EARTH' | 'MARS' | 'RESET' | null>(null)
 
   const cameraRef = useRef<CameraControls>(null)
   const frameCounter = useRef(0)
@@ -93,25 +99,34 @@ export default function SolarSystem() {
     }
   }, [])
 
-  const handleFocus = (target: 'SUN' | 'MERCURY' | 'EARTH' | 'MARS' | 'RESET') => {
+  const handleFocus = (target: 'SUN' | 'MERCURY' | 'VENUS' | 'EARTH' | 'MARS' | 'RESET') => {
     if (!cameraRef.current) return
     
     setFocusTarget(target)
     setIsAligned(true)
 
-    // Jarak kamera disesuaikan agar tidak terlalu dekat (menjaga performa)
+    // Logika Kamera (Disesuaikan dengan planet yang lebih kecil)
+    // Format: setLookAt(EyeX, EyeY, EyeZ, TargetX, TargetY, TargetZ, Transition)
+    // Kita dekatkan kamera sedikit karena planetnya mengecil
     switch (target) {
       case 'SUN':
         cameraRef.current.setLookAt(6, 2, 6, 0, 0, 0, true) 
         break
       case 'MERCURY':
+        // Radius 6
         cameraRef.current.setLookAt(8, 1, 2, 6, 0, 0, true)
         break
+      case 'VENUS':
+        // Radius 8
+        cameraRef.current.setLookAt(10.5, 1.5, 2.5, 8, 0, 0, true)
+        break
       case 'EARTH':
-        cameraRef.current.setLookAt(14, 2, 4, 10, 0, 0, true)
+        // Radius 10
+        cameraRef.current.setLookAt(12.5, 1.5, 2.5, 10, 0, 0, true)
         break
       case 'MARS':
-        cameraRef.current.setLookAt(19, 2, 4, 16, 0, 0, true)
+        // Radius 16
+        cameraRef.current.setLookAt(18, 1.5, 2.5, 16, 0, 0, true)
         break
       case 'RESET':
         setFocusTarget(null)
@@ -143,12 +158,11 @@ export default function SolarSystem() {
         <Stars radius={300} depth={50} count={5000} factor={4} saturation={0} fade />
         <ambientLight intensity={0.1} />
 
-        {/* --- SETTINGAN KAMERA BARU --- */}
         <CameraControls 
           ref={cameraRef} 
           makeDefault 
-          smoothTime={0.25}  // DITURUNKAN: Agar responsif (tidak berat/lambat)
-          dollySpeed={10}   // DITAMBAHKAN: Agar scroll zoom lebih cepat
+          smoothTime={0.25} 
+          dollySpeed={10}
           maxDistance={100} 
           minDistance={2} 
         />
@@ -165,23 +179,41 @@ export default function SolarSystem() {
           onPointerOver={() => document.body.style.cursor = 'pointer'}
           onPointerOut={() => document.body.style.cursor = 'auto'}
         >
-           <SunMesh /> 
+           {/* Matahari tetap besar atau bisa dikecilkan juga jika mau */}
+           <group scale={[0.8, 0.8, 0.8]}>
+             <SunMesh /> 
+           </group>
         </group>
 
-        {/* 2. MERCURY */}
+        {/* 2. MERKURIUS (Radius 6) */}
         <PlanetOrbit 
           radius={6} 
-          speed={1.5} // Lebih cepat dari Bumi
+          speed={1.5} 
           name="Merkurius" 
           isAligned={isAligned}
           onPlanetClick={() => handleFocus('MERCURY')}
         >
-          <group scale={[0.38, 0.38, 0.38]}> {/* Ukuran asli Merkurius */}
+          {/* Scale: 0.38 (Asli) * 0.6 (Base) = 0.228 */}
+          <group scale={[0.38 * BASE_SCALE, 0.38 * BASE_SCALE, 0.38 * BASE_SCALE]}>
             <MercuryMesh />
           </group>
         </PlanetOrbit>
 
-        {/* 2. BUMI */}
+        {/* 3. VENUS (Radius 8) */}
+        <PlanetOrbit 
+          radius={8} 
+          speed={1.2} 
+          name="Venus" 
+          isAligned={isAligned}
+          onPlanetClick={() => handleFocus('VENUS')}
+        >
+          {/* Scale: 0.95 (Asli) * 0.6 (Base) = 0.57 */}
+          <group scale={[0.95 * BASE_SCALE, 0.95 * BASE_SCALE, 0.95 * BASE_SCALE]}>
+            <VenusMesh />
+          </group>
+        </PlanetOrbit>
+
+        {/* 4. BUMI (Radius 10) */}
         <PlanetOrbit 
           radius={10} 
           speed={1} 
@@ -189,10 +221,13 @@ export default function SolarSystem() {
           isAligned={isAligned}
           onPlanetClick={() => handleFocus('EARTH')}
         >
-          <EarthMesh active={focusTarget === 'EARTH'} />
+          {/* Scale: 1.0 (Asli) * 0.6 (Base) = 0.6 */}
+          <group scale={[1 * BASE_SCALE, 1 * BASE_SCALE, 1 * BASE_SCALE]}>
+            <EarthMesh active={focusTarget === 'EARTH'} />
+          </group>
         </PlanetOrbit>
 
-        {/* 3. MARS */}
+        {/* 5. MARS (Radius 16) */}
         <PlanetOrbit 
           radius={16} 
           speed={0.53} 
@@ -200,7 +235,8 @@ export default function SolarSystem() {
           isAligned={isAligned}
           onPlanetClick={() => handleFocus('MARS')}
         >
-          <group scale={[0.53, 0.53, 0.53]}>
+          {/* Scale: 0.53 (Asli) * 0.6 (Base) = 0.318 */}
+          <group scale={[0.53 * BASE_SCALE, 0.53 * BASE_SCALE, 0.53 * BASE_SCALE]}>
             <MarsMesh />
           </group>
         </PlanetOrbit>
