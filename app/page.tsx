@@ -10,6 +10,7 @@ import { EarthMesh } from './components/earth'
 import { MarsMesh } from './components/mars'
 import { MercuryMesh } from './components/mercury'
 import { VenusMesh } from './components/venus'
+import { JupiterMesh } from './components/jupiter'
 import { SolarControls } from './components/solarpanel'
 
 // --- KONSTANTA SKALA (Ubah ini untuk mengatur besar/kecil seluruh planet) ---
@@ -83,7 +84,7 @@ function PlanetOrbit({ radius, speed, children, name, isAligned, onPlanetClick }
 export default function SolarSystem() {
   const [isAligned, setIsAligned] = useState(true)
   const [currentDate, setCurrentDate] = useState(new Date())
-  const [focusTarget, setFocusTarget] = useState<'SUN' | 'MERCURY' | 'VENUS' | 'EARTH' | 'MARS' | 'RESET' | null>(null)
+  const [focusTarget, setFocusTarget] = useState<'SUN' | 'MERCURY' | 'VENUS' | 'EARTH' | 'MARS' | 'JUPITER' | 'RESET' | null>(null)
 
   const cameraRef = useRef<CameraControls>(null)
   const frameCounter = useRef(0)
@@ -99,7 +100,7 @@ export default function SolarSystem() {
     }
   }, [])
 
-  const handleFocus = (target: 'SUN' | 'MERCURY' | 'VENUS' | 'EARTH' | 'MARS' | 'RESET') => {
+  const handleFocus = (target: 'SUN' | 'MERCURY' | 'VENUS' | 'EARTH' | 'MARS' | 'JUPITER' | 'RESET') => {
     if (!cameraRef.current) return
     
     setFocusTarget(target)
@@ -127,6 +128,10 @@ export default function SolarSystem() {
       case 'MARS':
         // Radius 16
         cameraRef.current.setLookAt(18, 1.5, 2.5, 16, 0, 0, true)
+        break
+      case 'JUPITER':
+        // Radius 24
+        cameraRef.current.setLookAt(30, 4, 8, 24, 0, 0, true)
         break
       case 'RESET':
         setFocusTarget(null)
@@ -238,6 +243,20 @@ export default function SolarSystem() {
           {/* Scale: 0.53 (Asli) * 0.6 (Base) = 0.318 */}
           <group scale={[0.53 * BASE_SCALE, 0.53 * BASE_SCALE, 0.53 * BASE_SCALE]}>
             <MarsMesh />
+          </group>
+        </PlanetOrbit>
+
+        {/* 6. JUPITER (Radius 24) */}
+        <PlanetOrbit 
+          radius={24} 
+          speed={0.2} // Sangat lambat mengelilingi matahari
+          name="Jupiter" 
+          isAligned={isAligned}
+          onPlanetClick={() => handleFocus('JUPITER')}
+        >
+          {/* Scale: 2.5 (Besar) * 0.6 (Base) = 1.5 */}
+          <group scale={[2.5 * BASE_SCALE, 2.5 * BASE_SCALE, 2.5 * BASE_SCALE]}>
+            <JupiterMesh />
           </group>
         </PlanetOrbit>
 
