@@ -5,90 +5,96 @@ import { useFrame } from '@react-three/fiber'
 import { useTexture } from '@react-three/drei'
 import * as THREE from 'three'
 
-// --- KOMPONEN CINCIN (RINGS) ---
-function SaturnRings({ uniforms }: { uniforms: any }) {
-  const meshRef = useRef<THREE.Mesh>(null)
+// --- 1. KOMPONEN CINCIN (NEW DESIGN) ---
+// Menggunakan shader radial baru agar tekstur melingkar sempurna dan halus
+const ringVertexShader = `
+  varying vec3 vPos;
+  varying vec2 vUv;
+  void main() {
+    vPos = position;
+    vUv = uv;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  }
+`
 
-  const vertexShader = `
-    varying vec2 vUv;
-    varying vec3 vPos;
-    void main() {
-      vUv = uv;
-      vPos = position;
-      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-    }
-  `
+const ringFragmentShader = `
+  uniform sampler2D ringTexture;
+  uniform float innerRadius;
+  uniform float outerRadius;
+  uniform float opacity;
 
-  const fragmentShader = `
-    uniform sampler2D ringTexture;
-    uniform sampler2D rainbowTexture;
-    uniform float uInteractive;
+  varying vec3 vPos;
+
+  void main() {
+    // Hitung koordinat radial (jarak dari pusat)
+    float len = length(vPos.xy);
     
-    varying vec2 vUv;
-    varying vec3 vPos;
+    // Mapping jarak ke UV (0.0 = dalam, 1.0 = luar)
+    float u = (len - innerRadius) / (outerRadius - innerRadius);
 
-    void main() {
-  // vUv.y = radial distance (inner → outer)
-  float radius = vUv.y;
+    // Ambil warna dari tekstur
+    vec4 color = texture2D(ringTexture, vec2(u, 0.5));
 
-  // Sample ring texture radially
-  vec4 ring = texture2D(ringTexture, vec2(radius, 0.5));
+    // Haluskan pinggiran (anti-aliasing)
+    float alpha = color.a * opacity;
+    float edgeWidth = 0.02;
+    float fade = smoothstep(0.0, edgeWidth, u) * (1.0 - smoothstep(1.0 - edgeWidth, 1.0, u));
+    
+    gl_FragColor = vec4(color.rgb, alpha * fade);
+  }
+`
 
-  // Kill transparent pixels
-  if (ring.a < 0.05) discard;
-
-  // Slight fade at edges (realistic)
-  float edgeFade = smoothstep(0.0, 0.03, radius)
-                 * smoothstep(1.0, 0.97, radius);
-
-  gl_FragColor = vec4(ring.rgb, ring.a * edgeFade);
-}
-  `
-
-  const ringMat = useMemo(() => new THREE.ShaderMaterial({
-    uniforms: uniforms,
-    vertexShader,
-    fragmentShader,
-    transparent: true,
-    side: THREE.DoubleSide
-  }), [uniforms])
+function SaturnRings() {
+  const innerRadius = 1.4
+  const outerRadius = 2.3
+  const ringMap = useTexture('/textures/saturn_ring2.jpg')
+  
+  const uniforms = useMemo(() => ({
+    ringTexture: { value: ringMap },
+    innerRadius: { value: innerRadius },
+    outerRadius: { value: outerRadius },
+    opacity: { value: 0.8 }
+  }), [ringMap])
 
   return (
-    // Geometri Cincin: Inner Radius 1.4, Outer Radius 2.3
-    <mesh ref={meshRef} rotation-x={Math.PI / 2} geometry={new THREE.RingGeometry(1.4, 2.3, 128)} material={ringMat} />
+    <mesh rotation-x={-Math.PI / 2}>
+      <ringGeometry args={[innerRadius, outerRadius, 128]} />
+      <shaderMaterial
+        vertexShader={ringVertexShader}
+        fragmentShader={ringFragmentShader}
+        uniforms={uniforms}
+        transparent={true}
+        side={THREE.DoubleSide}
+        depthWrite={false} // Agar transparan cincin tidak bolong
+        blending={THREE.NormalBlending}
+      />
+    </mesh>
   )
 }
 
-// --- KOMPONEN UTAMA ---
+// --- 2. KOMPONEN PLANET (VOWPIXEL STYLE) ---
 export const SaturnMesh = memo(function SaturnMesh() {
   const groupRef = useRef<THREE.Group>(null)
   const targetUV = useRef(new THREE.Vector2(0, 0))
 
-  // LOAD TEXTURE
-  // Solusi Bump Map: Kita load 'saturn_map.jpg' DUA KALI.
-  // Satu untuk warna, satu untuk ketinggian (bump).
-  const [colorMap, bumpMap, ringMap, rainbowMap] = useTexture([
+  // Load Texture untuk Planet (Vowpixel)
+  // Kita load saturn_map2.jpg dua kali (satu warna, satu elevasi)
+  const [colorMap, bumpMap, rainbowMap] = useTexture([
     '/textures/saturn_map2.jpg', 
-    '/textures/saturn_map2.jpg', // Gunakan map yang sama sebagai bump
-    '/textures/saturn_ring2.jpg', 
+    '/textures/saturn_map2.jpg', 
     '/textures/04_rainbow1k.jpg'
   ])
-
-  // Set texture cincin agar repeat-nya benar (mencegah garis terpotong)
-  ringMap.wrapS = THREE.RepeatWrapping
-  ringMap.wrapT = THREE.RepeatWrapping
 
   const uniforms = useMemo(() => ({
     size: { value: 9.5 }, 
     colorTexture: { value: colorMap },
     elevTexture: { value: bumpMap },
-    ringTexture: { value: ringMap },
     rainbowTexture: { value: rainbowMap },
     uInteractive: { value: 0.0 },
     mouseUV: { value: new THREE.Vector2(0, 0) }
-  }), [colorMap, bumpMap, ringMap, rainbowMap])
+  }), [colorMap, bumpMap, rainbowMap])
 
-  // --- VERTEX SHADER PLANET ---
+  // Vertex Shader Planet (Logic Vowpixel / Points)
   const vertexShader = `
     uniform float size;
     uniform sampler2D elevTexture;
@@ -104,14 +110,16 @@ export const SaturnMesh = memo(function SaturnMesh() {
       vUv = uv;
       vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
       
-      // Ambil data dari map warna (hitam=rendah, putih=tinggi)
+      // Elevasi (Hitam=rendah, Putih=tinggi)
       float elv = texture2D(elevTexture, vUv).r;
       vElv = elv;
 
       vec3 vNormal = normalMatrix * normal;
+      
+      // Hitung visibilitas (agar titik di belakang tidak terlihat numpuk)
       vVisible = step(0.0, dot( -normalize(mvPosition.xyz), normalize(vNormal)));
       
-      // Displacement Halus (Gas Giant tidak tajam)
+      // Displacement Halus
       float displacement = elv * 0.1; 
       mvPosition.z += displacement;
 
@@ -129,12 +137,14 @@ export const SaturnMesh = memo(function SaturnMesh() {
       vDist = dist;
       mvPosition.z += zDisp;
 
+      // Ukuran titik (Vowpixel effect)
+      // Menggunakan perspective scaling agar terlihat 3D
       gl_PointSize = size * (8.0 / -mvPosition.z);
       gl_Position = projectionMatrix * mvPosition;
     }
   `
 
-  // --- FRAGMENT SHADER PLANET ---
+  // Fragment Shader Planet
   const fragmentShader = `
     uniform sampler2D colorTexture;
     uniform sampler2D rainbowTexture;
@@ -146,6 +156,7 @@ export const SaturnMesh = memo(function SaturnMesh() {
     varying float vElv;
 
     void main() {
+      // Buang pixel yang tidak terlihat atau di luar lingkaran titik
       if (floor(vVisible + 0.1) == 0.0) discard;
 
       vec2 cxy = 2.0 * gl_PointCoord - 1.0;
@@ -154,6 +165,7 @@ export const SaturnMesh = memo(function SaturnMesh() {
       vec3 color = texture2D(colorTexture, vUv).rgb;
       vec3 rainbowColor = texture2D(rainbowTexture, vUv).rgb;
 
+      // Efek interaksi warna
       if (uInteractive > 0.0) {
         float thresh = 0.06;
         if (vDist < thresh) {
@@ -161,18 +173,19 @@ export const SaturnMesh = memo(function SaturnMesh() {
         }
       }
 
+      // Beri sedikit shading berdasarkan elevasi
       color = color * (0.8 + 0.4 * vElv);
 
       gl_FragColor = vec4(color, 1.0);
     }
   `
 
-  // GEOMETRY
+  // Geometri Point Cloud
   const pointsGeo = useMemo(() => new THREE.IcosahedronGeometry(1, 120), [])
   const hitboxGeo = useMemo(() => new THREE.IcosahedronGeometry(1, 8), [])
+  // Sphere untuk menutupi titik-titik bagian belakang (Occlusion)
   const occlusionGeo = useMemo(() => new THREE.IcosahedronGeometry(0.99, 64), []) 
 
-  // MATERIAL
   const pointsMat = useMemo(() => new THREE.ShaderMaterial({
     uniforms,
     vertexShader,
@@ -185,19 +198,22 @@ export const SaturnMesh = memo(function SaturnMesh() {
       groupRef.current.rotation.y += 0.002
     }
     
+    // Animasi lerp untuk interaksi mouse
     uniforms.mouseUV.value.lerp(targetUV.current, 0.1)
     uniforms.uInteractive.value = THREE.MathUtils.lerp(uniforms.uInteractive.value, 1.0, 0.1)
   })
 
   return (
-    // Kemiringan Saturnus (26.7 derajat)
+    // Kemiringan Saturnus 26.7 derajat
     <group rotation-z={26.7 * (Math.PI / 180)}>
       <group ref={groupRef}>
         
-        {/* CINCIN */}
-        <SaturnRings uniforms={uniforms} />
+        {/* --- CINCIN BARU (Design Bagus) --- */}
+        <SaturnRings />
 
-        {/* HITBOX */}
+        {/* --- PLANET LAMA (Vowpixel / Points) --- */}
+        
+        {/* Hitbox untuk raycasting mouse */}
         <mesh 
           geometry={hitboxGeo} 
           visible={false}
@@ -206,12 +222,12 @@ export const SaturnMesh = memo(function SaturnMesh() {
           }}
         />
 
-        {/* OCCLUSION SPHERE (Warna krem gelap) */}
+        {/* Occlusion Sphere (Warna krem gelap untuk menutupi titik belakang) */}
         <mesh geometry={occlusionGeo}>
           <meshBasicMaterial color="#c2a27e" /> 
         </mesh>
 
-        {/* VISUAL POINTS */}
+        {/* Visual Points (Vowpixel) */}
         <points 
           geometry={pointsGeo} 
           material={pointsMat} 
@@ -221,3 +237,8 @@ export const SaturnMesh = memo(function SaturnMesh() {
     </group>
   )
 })
+
+// Preload Textures
+useTexture.preload('/textures/saturn_map2.jpg')
+useTexture.preload('/textures/saturn_ring2.jpg')
+useTexture.preload('/textures/04_rainbow1k.jpg')
