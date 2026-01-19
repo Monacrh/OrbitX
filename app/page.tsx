@@ -12,6 +12,7 @@ import { MercuryMesh } from './components/mercury'
 import { VenusMesh } from './components/venus'
 import { JupiterMesh } from './components/jupiter'
 import { SaturnMesh } from './components/saturn'
+import { UranusMesh } from './components/uranus'
 import { SolarControls } from './components/solarpanel'
 
 // --- KONSTANTA SKALA (Ubah ini untuk mengatur besar/kecil seluruh planet) ---
@@ -85,7 +86,7 @@ function PlanetOrbit({ radius, speed, children, name, isAligned, onPlanetClick }
 export default function SolarSystem() {
   const [isAligned, setIsAligned] = useState(true)
   const [currentDate, setCurrentDate] = useState(new Date())
-  const [focusTarget, setFocusTarget] = useState<'SUN' | 'MERCURY' | 'VENUS' | 'EARTH' | 'MARS' | 'JUPITER' | 'SATURN' | 'RESET' | null>(null)
+  const [focusTarget, setFocusTarget] = useState<'SUN' | 'MERCURY' | 'VENUS' | 'EARTH' | 'MARS' | 'JUPITER' | 'SATURN' | 'URANUS' | 'RESET' | null>(null)
 
   const cameraRef = useRef<CameraControls>(null)
   const frameCounter = useRef(0)
@@ -101,7 +102,7 @@ export default function SolarSystem() {
     }
   }, [])
 
-  const handleFocus = (target: 'SUN' | 'MERCURY' | 'VENUS' | 'EARTH' | 'MARS' | 'JUPITER' | 'SATURN' | 'RESET') => {
+  const handleFocus = (target: 'SUN' | 'MERCURY' | 'VENUS' | 'EARTH' | 'MARS' | 'JUPITER' | 'SATURN' | 'URANUS' | 'RESET') => {
     if (!cameraRef.current) return
     
     setFocusTarget(target)
@@ -137,6 +138,9 @@ export default function SolarSystem() {
       // Di dalam handleFocus switch:
       case 'SATURN':
         cameraRef.current.setLookAt(40, 5, 10, 32, 0, 0, true)
+        break
+      case 'URANUS':
+        cameraRef.current.setLookAt(50, 6, 12, 40, 0, 0, true)
         break
       case 'RESET':
         setFocusTarget(null)
@@ -264,7 +268,8 @@ export default function SolarSystem() {
             <JupiterMesh />
           </group>
         </PlanetOrbit>
-
+        
+        {/* 7. SATURNUS (Radius 32) */}
         <PlanetOrbit 
           radius={32} 
           speed={0.15} // Lebih lambat dari Jupiter
@@ -275,6 +280,18 @@ export default function SolarSystem() {
           {/* Scale: 2.1 (Sedikit lebih kecil dari Jupiter) * 0.6 (Base) = 1.26 */}
           <group scale={[2.1 * BASE_SCALE, 2.1 * BASE_SCALE, 2.1 * BASE_SCALE]}>
             <SaturnMesh />
+          </group>
+        </PlanetOrbit>
+
+        <PlanetOrbit 
+          radius={40} 
+          speed={0.1} // Lebih lambat dari Jupiter
+          name="Uranus" 
+          isAligned={isAligned}
+          onPlanetClick={() => handleFocus('URANUS')}
+        >
+          <group scale={[1.8 * BASE_SCALE, 1.8 * BASE_SCALE, 1.8 * BASE_SCALE]}>
+            <UranusMesh />
           </group>
         </PlanetOrbit>
 
