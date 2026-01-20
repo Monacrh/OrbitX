@@ -13,6 +13,7 @@ import { VenusMesh } from './components/venus'
 import { JupiterMesh } from './components/jupiter'
 import { SaturnMesh } from './components/saturn'
 import { UranusMesh } from './components/uranus'
+import { NeptuneMesh } from './components/neptune'
 import { SolarControls } from './components/solarpanel'
 
 // --- KONSTANTA SKALA (Ubah ini untuk mengatur besar/kecil seluruh planet) ---
@@ -86,7 +87,7 @@ function PlanetOrbit({ radius, speed, children, name, isAligned, onPlanetClick }
 export default function SolarSystem() {
   const [isAligned, setIsAligned] = useState(true)
   const [currentDate, setCurrentDate] = useState(new Date())
-  const [focusTarget, setFocusTarget] = useState<'SUN' | 'MERCURY' | 'VENUS' | 'EARTH' | 'MARS' | 'JUPITER' | 'SATURN' | 'URANUS' | 'RESET' | null>(null)
+  const [focusTarget, setFocusTarget] = useState<'SUN' | 'MERCURY' | 'VENUS' | 'EARTH' | 'MARS' | 'JUPITER' | 'SATURN' | 'URANUS' | 'NEPTUNE' | 'RESET' | null>(null)
 
   const cameraRef = useRef<CameraControls>(null)
   const frameCounter = useRef(0)
@@ -102,7 +103,7 @@ export default function SolarSystem() {
     }
   }, [])
 
-  const handleFocus = (target: 'SUN' | 'MERCURY' | 'VENUS' | 'EARTH' | 'MARS' | 'JUPITER' | 'SATURN' | 'URANUS' | 'RESET') => {
+  const handleFocus = (target: 'SUN' | 'MERCURY' | 'VENUS' | 'EARTH' | 'MARS' | 'JUPITER' | 'SATURN' | 'URANUS' | 'NEPTUNE' | 'RESET') => {
     if (!cameraRef.current) return
     
     setFocusTarget(target)
@@ -141,6 +142,9 @@ export default function SolarSystem() {
         break
       case 'URANUS':
         cameraRef.current.setLookAt(50, 6, 12, 40, 0, 0, true)
+        break
+      case 'NEPTUNE':
+        cameraRef.current.setLookAt(56, 5, 10, 48, 0, 0, true)
         break
       case 'RESET':
         setFocusTarget(null)
@@ -292,6 +296,19 @@ export default function SolarSystem() {
         >
           <group scale={[1.8 * BASE_SCALE, 1.8 * BASE_SCALE, 1.8 * BASE_SCALE]}>
             <UranusMesh />
+          </group>
+        </PlanetOrbit>
+
+        <PlanetOrbit 
+          radius={48} 
+          speed={0.08} // Paling lambat
+          name="Neptunus" 
+          isAligned={isAligned}
+          onPlanetClick={() => handleFocus('NEPTUNE')}
+        >
+          {/* Ukuran mirip Uranus */}
+          <group scale={[1.8 * BASE_SCALE, 1.8 * BASE_SCALE, 1.8 * BASE_SCALE]}>
+            <NeptuneMesh />
           </group>
         </PlanetOrbit>
 
