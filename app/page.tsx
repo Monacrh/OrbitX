@@ -14,6 +14,8 @@ import { JupiterMesh } from './components/jupiter'
 import { SaturnMesh } from './components/saturn'
 import { UranusMesh } from './components/uranus'
 import { NeptuneMesh } from './components/neptune'
+
+import { AsteroidBelt } from './components/asteroids'
 import { SolarControls } from './components/solarpanel'
 
 // --- KONSTANTA SKALA (Ubah ini untuk mengatur besar/kecil seluruh planet) ---
@@ -258,6 +260,8 @@ export default function SolarSystem() {
             <MarsMesh />
           </group>
         </PlanetOrbit>
+
+        <AsteroidBelt count={800} radiusStart={18} radiusEnd={22} /> {/* Remove this if you don't want asteroid */}
 
         {/* 6. JUPITER (Radius 24) */}
         <PlanetOrbit 
