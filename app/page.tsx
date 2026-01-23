@@ -315,7 +315,7 @@ export default function SolarSystem() {
       </Canvas>
       
       <div className="absolute top-8 left-8 text-white z-10 pointer-events-none select-none">
-        <h1 className="text-3xl font-bold tracking-tight">Tata Surya</h1>
+        <h1 className="text-3xl font-bold tracking-tight">Solar Panel</h1>
         <p className="text-sm text-blue-300/80">Interactive 3D Simulation</p>
       </div>
 
