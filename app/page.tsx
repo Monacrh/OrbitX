@@ -270,7 +270,8 @@ export default function SolarSystem() {
           </group>
         </PlanetOrbit>
 
-        <AsteroidBelt count={800} radiusStart={18} radiusEnd={22} /> {/* Remove this if you don't want asteroid */}
+        <AsteroidBelt count={800} radiusStart={18} radiusEnd={22} /> 
+        {/* Remove this if you don't want asteroid */}
 
         {/* 6. JUPITER (Radius 24) */}
         <PlanetOrbit 
