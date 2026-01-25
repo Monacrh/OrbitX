@@ -4,6 +4,7 @@ import { useRef, useState, useCallback } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { Stars, Html, CameraControls } from '@react-three/drei'
 import * as THREE from 'three'
+import { EffectComposer, Bloom } from '@react-three/postprocessing'
 
 import { SunMesh } from './components/sun'
 import { EarthMesh } from './components/earth'
@@ -188,6 +189,14 @@ export default function SolarSystem() {
         />
 
         <TimeManager isRunning={!isAligned} onUpdateDate={handleTimeUpdate} />
+
+        {/* <EffectComposer enableNormalPass>
+            <Bloom 
+                luminanceThreshold={0.5} // Batas kecerahan agar objek mulai 'glowing'
+                luminanceSmoothing={0.9} // Seberapa halus pendaran cahayanya
+                intensity={2.0}          // Kekuatan glow
+            />
+        </EffectComposer> */}
 
         {/* 1. MATAHARI */}
         <group 
