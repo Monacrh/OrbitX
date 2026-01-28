@@ -8,96 +8,96 @@ type PlanetData = {
   stats: { label: string; value: string }[]
 }
 
-// Database Informasi Planet (Bisa ditambah/diedit sesuka hati)
+// English Planet Database
 const PLANET_DB: Record<string, PlanetData> = {
   SUN: {
-    name: "Matahari",
-    description: "Bintang di pusat Tata Surya. Bola plasma panas yang nyaris sempurna ini adalah sumber energi utama bagi kehidupan di Bumi.",
+    name: "Sun",
+    description: "The star at the center of the Solar System. It is a nearly perfect sphere of hot plasma and the primary source of energy for life on Earth.",
     stats: [
-      { label: "Tipe", value: "Bintang Kuning (G2V)" },
-      { label: "Suhu Permukaan", value: "5.500°C" },
-      { label: "Diameter", value: "1.39 Juta km" },
-      { label: "Massa", value: "333.000 x Bumi" }
+      { label: "Type", value: "Yellow Dwarf (G2V)" },
+      { label: "Surface Temp", value: "5,500°C" },
+      { label: "Diameter", value: "1.39 Million km" },
+      { label: "Mass", value: "333,000 x Earth" }
     ]
   },
   MERCURY: {
-    name: "Merkurius",
-    description: "Planet terkecil dan terdekat dengan Matahari. Permukaannya penuh kawah mirip Bulan dan tidak memiliki atmosfer untuk menahan panas.",
+    name: "Mercury",
+    description: "The smallest planet in the Solar System and closest to the Sun. Its surface is heavily cratered like the Moon and has no atmosphere to retain heat.",
     stats: [
-      { label: "Jarak dari Matahari", value: "58 Juta km" },
-      { label: "Diameter", value: "4.880 km" },
-      { label: "Suhu", value: "-173°C s/d 427°C" },
-      { label: "Revolusi", value: "88 Hari" }
+      { label: "Distance from Sun", value: "58 Million km" },
+      { label: "Diameter", value: "4,880 km" },
+      { label: "Temperature", value: "-173°C to 427°C" },
+      { label: "Orbital Period", value: "88 Days" }
     ]
   },
   VENUS: {
     name: "Venus",
-    description: "Planet terpanas di Tata Surya karena efek rumah kaca yang ekstrem. Berotasi dengan arah yang berlawanan dari planet lain.",
+    description: "The hottest planet in the Solar System due to an extreme greenhouse effect. It rotates in the opposite direction to most other planets.",
     stats: [
-      { label: "Jarak dari Matahari", value: "108 Juta km" },
-      { label: "Diameter", value: "12.104 km" },
-      { label: "Suhu Rata-rata", value: "462°C" },
-      { label: "Revolusi", value: "225 Hari" }
+      { label: "Distance from Sun", value: "108 Million km" },
+      { label: "Diameter", value: "12,104 km" },
+      { label: "Avg Temp", value: "462°C" },
+      { label: "Orbital Period", value: "225 Days" }
     ]
   },
   EARTH: {
-    name: "Bumi",
-    description: "Satu-satunya planet yang diketahui memiliki kehidupan. Memiliki atmosfer nitrogen-oksigen dan lautan air cair yang luas.",
+    name: "Earth",
+    description: "The only planet known to harbor life. It has a nitrogen-oxygen atmosphere and vast oceans of liquid water covering 70% of its surface.",
     stats: [
-      { label: "Jarak dari Matahari", value: "149.6 Juta km" },
-      { label: "Diameter", value: "12.742 km" },
-      { label: "Satelit Alami", value: "1 (Bulan)" },
-      { label: "Revolusi", value: "365.25 Hari" }
+      { label: "Distance from Sun", value: "149.6 Million km" },
+      { label: "Diameter", value: "12,742 km" },
+      { label: "Natural Satellites", value: "1 (The Moon)" },
+      { label: "Orbital Period", value: "365.25 Days" }
     ]
   },
   MARS: {
     name: "Mars",
-    description: "Dikenal sebagai 'Planet Merah' karena oksida besi di permukaannya. Memiliki gunung tertinggi di Tata Surya, Olympus Mons.",
+    description: "Known as the 'Red Planet' due to iron oxide on its surface. It hosts Olympus Mons, the tallest volcano in the Solar System.",
     stats: [
-      { label: "Jarak dari Matahari", value: "228 Juta km" },
-      { label: "Diameter", value: "6.779 km" },
-      { label: "Suhu Rata-rata", value: "-63°C" },
-      { label: "Satelit", value: "2 (Phobos, Deimos)" }
+      { label: "Distance from Sun", value: "228 Million km" },
+      { label: "Diameter", value: "6,779 km" },
+      { label: "Avg Temp", value: "-63°C" },
+      { label: "Satellites", value: "2 (Phobos, Deimos)" }
     ]
   },
   JUPITER: {
     name: "Jupiter",
-    description: "Planet terbesar di Tata Surya. Raksasa gas ini memiliki Bintik Merah Raksasa, badai yang lebih besar dari Bumi.",
+    description: "The largest planet in the Solar System. This gas giant is famous for its Great Red Spot, a storm larger than Earth that has raged for centuries.",
     stats: [
-      { label: "Jarak dari Matahari", value: "778 Juta km" },
-      { label: "Diameter", value: "139.820 km" },
-      { label: "Komposisi", value: "Hidrogen, Helium" },
-      { label: "Satelit", value: "95 (Diketahui)" }
+      { label: "Distance from Sun", value: "778 Million km" },
+      { label: "Diameter", value: "139,820 km" },
+      { label: "Composition", value: "Hydrogen, Helium" },
+      { label: "Satellites", value: "95 (Known)" }
     ]
   },
   SATURN: {
-    name: "Saturnus",
-    description: "Terkenal dengan sistem cincinnya yang megah dan kompleks. Merupakan planet dengan densitas terendah (bisa mengapung di air).",
+    name: "Saturn",
+    description: "Famous for its magnificent and complex ring system. It is the only planet less dense than water (it would float in a giant bathtub).",
     stats: [
-      { label: "Jarak dari Matahari", value: "1.4 Miliar km" },
-      { label: "Diameter", value: "116.460 km" },
-      { label: "Cincin", value: "7 Kelompok Utama" },
-      { label: "Revolusi", value: "29.5 Tahun" }
+      { label: "Distance from Sun", value: "1.4 Billion km" },
+      { label: "Diameter", value: "116,460 km" },
+      { label: "Rings", value: "7 Main Groups" },
+      { label: "Orbital Period", value: "29.5 Years" }
     ]
   },
   URANUS: {
     name: "Uranus",
-    description: "Raksasa es yang unik karena berotasi 'menggelinding' dengan kemiringan poros 98 derajat. Berwarna biru-hijau karena metana.",
+    description: "An ice giant unique for rotating on its side with a 98-degree axial tilt. Its blue-green color comes from methane in its atmosphere.",
     stats: [
-      { label: "Jarak dari Matahari", value: "2.9 Miliar km" },
-      { label: "Diameter", value: "50.724 km" },
-      { label: "Suhu Terdingin", value: "-224°C" },
-      { label: "Revolusi", value: "84 Tahun" }
+      { label: "Distance from Sun", value: "2.9 Billion km" },
+      { label: "Diameter", value: "50,724 km" },
+      { label: "Coldest Temp", value: "-224°C" },
+      { label: "Orbital Period", value: "84 Years" }
     ]
   },
   NEPTUNE: {
-    name: "Neptunus",
-    description: "Planet terjauh dari Matahari. Raksasa es yang gelap, dingin, dan dilanda angin supersonik tercepat di Tata Surya.",
+    name: "Neptune",
+    description: "The farthest known planet from the Sun. A dark, cold ice giant whipped by supersonic winds, the fastest in the Solar System.",
     stats: [
-      { label: "Jarak dari Matahari", value: "4.5 Miliar km" },
-      { label: "Diameter", value: "49.244 km" },
-      { label: "Kecepatan Angin", value: "2.100 km/jam" },
-      { label: "Revolusi", value: "165 Tahun" }
+      { label: "Distance from Sun", value: "4.5 Billion km" },
+      { label: "Diameter", value: "49,244 km" },
+      { label: "Wind Speed", value: "2,100 km/h" },
+      { label: "Orbital Period", value: "165 Years" }
     ]
   }
 }
@@ -120,7 +120,7 @@ export function PlanetInfo({ activePlanet, onClose }: PlanetInfoProps) {
       
       {/* Header */}
       <div className="flex justify-between items-start mb-4">
-        <h2 className="text-4xl font-bold bg-clip-text text-transparent bg-linear-to-r from-blue-400 to-purple-400">
+        <h2 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
           {info.name}
         </h2>
         <button 

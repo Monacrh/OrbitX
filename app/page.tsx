@@ -18,7 +18,6 @@ import { NeptuneMesh } from './components/neptune'
 
 import { AsteroidBelt } from './components/asteroids'
 import { SolarControls } from './components/solarpanel'
-// [!code ++] Import komponen baru
 import { PlanetInfo } from './components/planet-info'
 
 // --- KONSTANTA SKALA ---
@@ -110,7 +109,6 @@ export default function SolarSystem() {
   const handleFocus = (target: 'SUN' | 'MERCURY' | 'VENUS' | 'EARTH' | 'MARS' | 'JUPITER' | 'SATURN' | 'URANUS' | 'NEPTUNE' | 'RESET') => {
     if (!cameraRef.current) return
     
-    // Jika tombol 'Reset' atau 'Close' ditekan, set target ke null
     if (target === 'RESET') {
         setFocusTarget(null)
         cameraRef.current.setLookAt(0, 15, 40, 0, 0, 0, true)
@@ -185,7 +183,6 @@ export default function SolarSystem() {
 
         <TimeManager isRunning={!isAligned} onUpdateDate={handleTimeUpdate} />
 
-        {/* EFEK BLOOM SELEKTIF */}
         {/* <EffectComposer disableNormalPass>
             <Bloom 
                 luminanceThreshold={1.5} 
@@ -195,7 +192,7 @@ export default function SolarSystem() {
             />
         </EffectComposer> */}
 
-        {/* 1. MATAHARI */}
+        {/* 1. SUN */}
         <group 
           position={[0, 0, 0]} 
           onClick={(e) => {
@@ -210,11 +207,11 @@ export default function SolarSystem() {
            </group>
         </group>
 
-        {/* 2. MERKURIUS */}
+        {/* 2. MERCURY */}
         <PlanetOrbit 
           radius={6} 
           speed={1.5} 
-          name="Merkurius" 
+          name="Mercury" 
           isAligned={isAligned}
           onPlanetClick={() => handleFocus('MERCURY')}
         >
@@ -236,11 +233,11 @@ export default function SolarSystem() {
           </group>
         </PlanetOrbit>
 
-        {/* 4. BUMI */}
+        {/* 4. EARTH */}
         <PlanetOrbit 
           radius={10} 
           speed={1} 
-          name="Bumi" 
+          name="Earth" 
           isAligned={isAligned}
           onPlanetClick={() => handleFocus('EARTH')}
         >
@@ -278,11 +275,11 @@ export default function SolarSystem() {
           </group>
         </PlanetOrbit>
         
-        {/* 7. SATURNUS */}
+        {/* 7. SATURN */}
         <PlanetOrbit 
           radius={32} 
           speed={0.15} 
-          name="Saturnus" 
+          name="Saturn" 
           isAligned={isAligned}
           onPlanetClick={() => handleFocus('SATURN')}
         >
@@ -304,11 +301,11 @@ export default function SolarSystem() {
           </group>
         </PlanetOrbit>
 
-        {/* 9. NEPTUNUS */}
+        {/* 9. NEPTUNE */}
         <PlanetOrbit 
           radius={48} 
           speed={0.08} 
-          name="Neptunus" 
+          name="Neptune" 
           isAligned={isAligned}
           onPlanetClick={() => handleFocus('NEPTUNE')}
         >
@@ -320,11 +317,10 @@ export default function SolarSystem() {
       </Canvas>
       
       <div className="absolute top-8 left-8 text-white z-10 pointer-events-none select-none">
-        <h1 className="text-3xl font-bold tracking-tight">Solar Panel</h1>
+        <h1 className="text-3xl font-bold tracking-tight">Solar System</h1>
         <p className="text-sm text-blue-300/80">Interactive 3D Simulation</p>
       </div>
 
-      {/* PANEL INFO PLANET (Menggantikan tombol reset lama) */}
       <PlanetInfo 
         activePlanet={focusTarget} 
         onClose={() => handleFocus('RESET')} 
