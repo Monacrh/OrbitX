@@ -1,6 +1,6 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-This Project is a 3D Solar System Simulation Using Three.js and Using method
+This Project is a 3D Solar System Simulation Using Three.js and Vowel Pixel method
 
 ## Getting Started
 
