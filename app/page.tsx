@@ -24,9 +24,10 @@ import { PlanetInfo } from './components/planet-info'
 const BASE_SCALE = 0.6 
 
 // --- HELPER: TIME MANAGER ---
-function TimeManager({ isRunning, onUpdateDate }: { isRunning: boolean, onUpdateDate: () => void }) {
+// [!code ++] Menerima prop 'speed' untuk mempercepat pergantian hari
+function TimeManager({ isRunning, speed, onUpdateDate }: { isRunning: boolean, speed: number, onUpdateDate: (speed: number) => void }) {
   useFrame(() => {
-    if (isRunning) onUpdateDate()
+    if (isRunning) onUpdateDate(speed)
   })
   return null
 }
@@ -34,22 +35,25 @@ function TimeManager({ isRunning, onUpdateDate }: { isRunning: boolean, onUpdate
 // --- HELPER: PLANET ORBIT ---
 interface PlanetOrbitProps {
   radius: number
-  speed: number
+  speed: number // Kecepatan dasar planet
+  simulationSpeed: number // [!code ++] Kecepatan simulasi dari slider
   children: React.ReactNode
   name: string
   isAligned: boolean
   onPlanetClick: () => void
 }
 
-function PlanetOrbit({ radius, speed, children, name, isAligned, onPlanetClick }: PlanetOrbitProps) {
+function PlanetOrbit({ radius, speed, simulationSpeed, children, name, isAligned, onPlanetClick }: PlanetOrbitProps) {
   const orbitRef = useRef<THREE.Group>(null)
 
-  useFrame((state) => {
+  useFrame(() => {
     if (orbitRef.current) {
       if (isAligned) {
+        // Efek smooth saat kembali ke posisi reset
         orbitRef.current.rotation.y = THREE.MathUtils.lerp(orbitRef.current.rotation.y, 0, 0.05)
       } else {
-        orbitRef.current.rotation.y += speed * 0.005
+        // [!code ++] Kalikan kecepatan dasar dengan kecepatan simulasi slider
+        orbitRef.current.rotation.y += speed * simulationSpeed * 0.005
       }
     }
   })
@@ -90,19 +94,29 @@ function PlanetOrbit({ radius, speed, children, name, isAligned, onPlanetClick }
 export default function SolarSystem() {
   const [isAligned, setIsAligned] = useState(true)
   const [currentDate, setCurrentDate] = useState(new Date())
+  
+  // [!code ++] State baru untuk kecepatan simulasi (Default 1x)
+  const [simulationSpeed, setSimulationSpeed] = useState(1.0) 
+
   const [focusTarget, setFocusTarget] = useState<'SUN' | 'MERCURY' | 'VENUS' | 'EARTH' | 'MARS' | 'JUPITER' | 'SATURN' | 'URANUS' | 'NEPTUNE' | 'RESET' | null>(null)
 
   const cameraRef = useRef<CameraControls>(null)
-  const frameCounter = useRef(0)
+  
+  // Menggunakan Float agar counter lebih presisi dengan kecepatan desimal
+  const frameCounter = useRef(0.0)
 
-  const handleTimeUpdate = useCallback(() => {
-    frameCounter.current += 1
-    if (frameCounter.current % 5 === 0) {
+  const handleTimeUpdate = useCallback((currentSpeed: number) => {
+    // [!code ++] Tambahkan counter berdasarkan speed. Semakin cepat speed, semakin cepat counter naik.
+    frameCounter.current += currentSpeed
+    
+    // Ganti hari setiap akumulasi 5 frame (angka ini bisa di-tweak)
+    if (frameCounter.current >= 5) {
       setCurrentDate((prevDate) => {
         const newDate = new Date(prevDate)
         newDate.setDate(prevDate.getDate() + 1)
         return newDate
       })
+      frameCounter.current = 0 // Reset counter
     }
   }, [])
 
@@ -181,7 +195,12 @@ export default function SolarSystem() {
           minDistance={2} 
         />
 
-        <TimeManager isRunning={!isAligned} onUpdateDate={handleTimeUpdate} />
+        {/* [!code ++] Pass simulationSpeed ke TimeManager */}
+        <TimeManager 
+            isRunning={!isAligned} 
+            speed={simulationSpeed}
+            onUpdateDate={handleTimeUpdate} 
+        />
 
         {/* <EffectComposer disableNormalPass>
             <Bloom 
@@ -211,6 +230,7 @@ export default function SolarSystem() {
         <PlanetOrbit 
           radius={6} 
           speed={1.5} 
+          simulationSpeed={simulationSpeed} // [!code ++] Pass Prop
           name="Mercury" 
           isAligned={isAligned}
           onPlanetClick={() => handleFocus('MERCURY')}
@@ -224,6 +244,7 @@ export default function SolarSystem() {
         <PlanetOrbit 
           radius={8} 
           speed={1.2} 
+          simulationSpeed={simulationSpeed} // [!code ++] Pass Prop
           name="Venus" 
           isAligned={isAligned}
           onPlanetClick={() => handleFocus('VENUS')}
@@ -237,6 +258,7 @@ export default function SolarSystem() {
         <PlanetOrbit 
           radius={10} 
           speed={1} 
+          simulationSpeed={simulationSpeed} // [!code ++] Pass Prop
           name="Earth" 
           isAligned={isAligned}
           onPlanetClick={() => handleFocus('EARTH')}
@@ -250,6 +272,7 @@ export default function SolarSystem() {
         <PlanetOrbit 
           radius={16} 
           speed={0.53} 
+          simulationSpeed={simulationSpeed} // [!code ++] Pass Prop
           name="Mars" 
           isAligned={isAligned}
           onPlanetClick={() => handleFocus('MARS')}
@@ -260,12 +283,14 @@ export default function SolarSystem() {
         </PlanetOrbit>
 
         {/* ASTEROID BELT */}
+        {/* Asteroid belt opsional: mau dipercepat juga atau tetap statis rotasinya */}
         <AsteroidBelt count={800} radiusStart={18} radiusEnd={22} />
 
         {/* 6. JUPITER */}
         <PlanetOrbit 
           radius={24} 
           speed={0.2} 
+          simulationSpeed={simulationSpeed} // [!code ++] Pass Prop
           name="Jupiter" 
           isAligned={isAligned}
           onPlanetClick={() => handleFocus('JUPITER')}
@@ -279,6 +304,7 @@ export default function SolarSystem() {
         <PlanetOrbit 
           radius={32} 
           speed={0.15} 
+          simulationSpeed={simulationSpeed} // [!code ++] Pass Prop
           name="Saturn" 
           isAligned={isAligned}
           onPlanetClick={() => handleFocus('SATURN')}
@@ -292,6 +318,7 @@ export default function SolarSystem() {
         <PlanetOrbit 
           radius={40} 
           speed={0.1} 
+          simulationSpeed={simulationSpeed} // [!code ++] Pass Prop
           name="Uranus" 
           isAligned={isAligned}
           onPlanetClick={() => handleFocus('URANUS')}
@@ -305,6 +332,7 @@ export default function SolarSystem() {
         <PlanetOrbit 
           radius={48} 
           speed={0.08} 
+          simulationSpeed={simulationSpeed} // [!code ++] Pass Prop
           name="Neptune" 
           isAligned={isAligned}
           onPlanetClick={() => handleFocus('NEPTUNE')}
@@ -326,10 +354,13 @@ export default function SolarSystem() {
         onClose={() => handleFocus('RESET')} 
       />
 
+      {/* Update Component Controls */}
       <SolarControls 
         isAligned={isAligned}
         onToggle={handleTogglePlay}
         currentDate={currentDate}
+        speed={simulationSpeed} // [!code ++] Pass State
+        onSpeedChange={setSimulationSpeed} // [!code ++] Pass Setter
       />
       
     </div>
